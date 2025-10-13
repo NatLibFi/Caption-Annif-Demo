@@ -76,15 +76,36 @@ def process_image(image):
     return image, caption, subjects
 
 
-demo = gr.Interface(
-    fn=lambda image: process_image(image)[1:],  # Only return caption and subjects
-    inputs=gr.Image(type="pil", label="Upload or take a photo"),
-    outputs=[
-        gr.Textbox(label="Caption"),
-        gr.Label(label="Subject Suggestions", show_heading=False),
-    ],
-    title="VLM Caption & Annif Subject Demo",
-    description="Upload or take a photo. The app generates a caption using a Visual Language Model and suggests subjects using Annif.",
-)
+with gr.Blocks(title="VLM Caption & Annif Subject Demo") as demo:
+    gr.Markdown("# VLM Caption & Annif Subject Demo")
+    gr.Markdown(
+        """
+    **How it works:**
+    1. Upload or take a photo in the input section below.
+    2. The image is sent to a Visual Language Model to generate a caption.
+    3. Annif suggests subjects based on the caption.
+    """
+    )
+    with gr.Row():
+        with gr.Column():
+            gr.Markdown("### Input")
+            image_input = gr.Image(
+                type="pil", label="Image Input (upload or take a photo)"
+            )
+            submit_btn = gr.Button("Submit")
+            clear_btn = gr.Button("Clear")
+        with gr.Column():
+            gr.Markdown("### Output")
+            caption_output = gr.Textbox(label="Caption", lines=10, interactive=False)
+            subjects_output = gr.Label(label="Subject Suggestions", show_heading=False)
+
+    def run_app(image):
+        caption, subjects = process_image(image)[1:]
+        return caption, subjects
+
+    submit_btn.click(
+        run_app, inputs=image_input, outputs=[caption_output, subjects_output]
+    )
+    clear_btn.click(lambda: ("", {}), outputs=[caption_output, subjects_output])
 
 demo.launch()

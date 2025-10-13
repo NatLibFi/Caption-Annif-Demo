@@ -99,7 +99,7 @@ with gr.Blocks(title="VLM Caption & Annif Subject Demo") as demo:
         with gr.Column():
             gr.Markdown("### Input")
             image_input = gr.Image(
-                type="pil", label="Image Input (upload or take a photo)"
+                type="pil", label="Image Input (upload or take a photo)", mirror_webcam=False,
             )
             project_dropdown = gr.Dropdown(
                 choices=[("YSO", "yso-en"), ("YKL", "ykl-en")],

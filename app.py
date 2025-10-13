@@ -12,8 +12,14 @@ VLM_API_KEY = os.getenv("VLM_API_KEY", "")
 VLM_API_ENDPOINT = f"{VLM_API_BASE_URL}/v1/chat/completions"
 
 
-# Initialize Annif client (no arguments)
-annif = AnnifClient()
+# Get Annif API base URL from environment variable, fallback to default
+ANNIF_API_BASE_URL = os.getenv("ANNIF_API_BASE_URL")
+if ANNIF_API_BASE_URL:
+    if not ANNIF_API_BASE_URL.endswith("v1/"):
+        raise RuntimeError("ANNIF_API_BASE_URL should end with 'v1/'")
+    annif = AnnifClient(api_base=ANNIF_API_BASE_URL)
+else:
+    annif = AnnifClient()
 
 
 def get_caption(image):
@@ -55,12 +61,9 @@ def get_caption(image):
     return caption
 
 
-PROJECT_ID = "yso-en"  # Placeholder, update as needed
-
-
-def get_subjects(caption):
+def get_subjects(caption, project_id):
     try:
-        results = annif.suggest(project_id=PROJECT_ID, text=caption)
+        results = annif.suggest(project_id=project_id, text=caption)
         label_scores = {result["label"]: result["score"] for result in results}
         if not label_scores:
             return {}
@@ -70,9 +73,9 @@ def get_subjects(caption):
         raise gr.Error("Sorry, there was a problem getting subject suggestions.")
 
 
-def process_image(image):
+def process_image(image, project_id):
     caption = get_caption(image)
-    subjects = get_subjects(caption)
+    subjects = get_subjects(caption, project_id)
     return image, caption, subjects
 
 
@@ -92,20 +95,33 @@ with gr.Blocks(title="VLM Caption & Annif Subject Demo") as demo:
             image_input = gr.Image(
                 type="pil", label="Image Input (upload or take a photo)"
             )
-            submit_btn = gr.Button("Submit")
+            project_dropdown = gr.Dropdown(
+                choices=[("YSO", "yso-en"), ("YKL", "ykl-en")],
+                value="yso-en",
+                label="Annif Project",
+                info="Select the vocabulary from where subject suggestions are drawn",
+            )
+            submit_btn = gr.Button("Submit", interactive=False)
             clear_btn = gr.Button("Clear")
         with gr.Column():
             gr.Markdown("### Output")
             caption_output = gr.Textbox(label="Caption", lines=10, interactive=False)
             subjects_output = gr.Label(label="Subject Suggestions", show_heading=False)
 
-    def run_app(image):
-        caption, subjects = process_image(image)[1:]
+    def run_app(image, project_id):
+        caption, subjects = process_image(image, project_id)[1:]
         return caption, subjects
 
     submit_btn.click(
-        run_app, inputs=image_input, outputs=[caption_output, subjects_output]
+        run_app,
+        inputs=[image_input, project_dropdown],
+        outputs=[caption_output, subjects_output],
     )
     clear_btn.click(lambda: ("", {}), outputs=[caption_output, subjects_output])
+
+    def update_submit_btn(img):
+        return gr.update(interactive=img is not None)
+
+    image_input.upload(update_submit_btn, inputs=image_input, outputs=submit_btn)
 
 demo.launch()

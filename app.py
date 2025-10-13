@@ -22,7 +22,7 @@ else:
     annif = AnnifClient()
 
 
-def get_caption(image):
+def get_caption(image, prompt):
     # Convert image to base64 JPEG
     import io
     import base64
@@ -38,7 +38,7 @@ def get_caption(image):
             {
                 "role": "user",
                 "content": [
-                    {"type": "text", "text": "What is in this image?"},
+                    {"type": "text", "text": prompt},
                     {
                         "type": "image_url",
                         "image_url": {"url": f"data:image/jpeg;base64,{img_b64}"},
@@ -74,7 +74,13 @@ def get_subjects(caption, project_id):
 
 
 def process_image(image, project_id):
-    caption = get_caption(image)
+    prompt = (
+        "Generate an alt-text description, which is a description for people who can't see the image. "
+        "Be sure to talk about the actual contents of it, do not interpret anything. "
+        "Start with a general description, then focus on details. Answer only with the "
+        "alt-text description, do not include 'Here's an alt-text description', explanations or subheadings."
+    )
+    caption = get_caption(image, prompt)
     subjects = get_subjects(caption, project_id)
     return image, caption, subjects
 

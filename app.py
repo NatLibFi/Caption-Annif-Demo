@@ -104,7 +104,10 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 type="pil", label="Image Input (upload or take a photo)", mirror_webcam=False,
             )
             project_dropdown = gr.Dropdown(
-                choices=[("YSO", "yso-fi"), ("YKL", "ykl-fi")],
+                choices=[("YSO Finnish - Yleinen suomalainen ontologia", "yso-fi"),
+                         ("YKL Finnish - Yleisten kirjastojen luokitusjärjestelmä ", "ykl-fi"),
+                         ("KAUNO Finnish - Fiktiivisen aineiston ontologia ", "kauno-fi")
+                         ],
                 value="yso-fi",
                 label="Annif Project",
                 info="Select the vocabulary from where subject suggestions are drawn",

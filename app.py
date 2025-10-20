@@ -75,10 +75,12 @@ def get_subjects(caption, project_id):
 
 def process_image(image, project_id):
     prompt = (
-        "Generate an alt-text description, which is a description for people who can't see the image. "
-        "Be sure to talk about the actual contents of it, do not interpret anything. "
-        "Start with a general description, then focus on details. Answer only with the "
-        "alt-text description, do not include 'Here's an alt-text description', explanations or subheadings."
+        'Luo vaihtoehtoinen tekstikuvaus, joka on tarkoitettu henkilöille, jotka eivät näe kuvaa. '
+        'Kuvaile kuvan todellista sisältöä, älä tulkitse mitään. '
+        'Aloita yleisellä kuvauksella ja siirry sitten yksityiskohtiin. '
+        'Kuvaile yksityiskohtia ainakin viiden lauseen verran. '
+        'Jos kuvassa näkyy tekstiä, kerro mitä siinä lukee ja jos teksti ei ole suomea, käännä se myös suomeksi. '
+        'Vastaa vain lopullisella alt-tekstillä, älä lisää "tässä on alt-teksti", selityksiä tai väliotsikoita. '
     )
     caption = get_caption(image, prompt)
     subjects = get_subjects(caption, project_id)
@@ -102,8 +104,8 @@ with gr.Blocks(title="VLM Caption & Annif Subject Demo") as demo:
                 type="pil", label="Image Input (upload or take a photo)", mirror_webcam=False,
             )
             project_dropdown = gr.Dropdown(
-                choices=[("YSO", "yso-en"), ("YKL", "ykl-en")],
-                value="yso-en",
+                choices=[("YSO", "yso-fi"), ("YKL", "ykl-fi")],
+                value="yso-fi",
                 label="Annif Project",
                 info="Select the vocabulary from where subject suggestions are drawn",
             )

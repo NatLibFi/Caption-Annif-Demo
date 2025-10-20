@@ -87,8 +87,8 @@ def process_image(image, project_id):
     return image, caption, subjects
 
 
-with gr.Blocks(title="VLM Caption & Annif Subject Demo") as demo:
-    gr.Markdown("# VLM Caption & Annif Subject Demo")
+with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
+    gr.Markdown("# VLM Caption & Annif Demo")
     gr.Markdown(
         """
     **How it works:**

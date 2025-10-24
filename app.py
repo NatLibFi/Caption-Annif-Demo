@@ -75,11 +75,11 @@ def get_subjects(caption, project_id):
 
 def process_image(image, project_id):
     prompt = (
-        'Luo vaihtoehtoinen tekstikuvaus, joka on tarkoitettu henkilöille, jotka eivät näe kuvaa. '
-        'Kuvaile kuvan todellista sisältöä, älä tulkitse mitään. '
-        'Aloita yleisellä kuvauksella ja siirry sitten yksityiskohtiin. '
-        'Kuvaile yksityiskohtia ainakin viiden lauseen verran. '
-        'Jos kuvassa näkyy tekstiä, kerro mitä siinä lukee ja jos teksti ei ole suomea, käännä se myös suomeksi. '
+        "Luo vaihtoehtoinen tekstikuvaus, joka on tarkoitettu henkilöille, jotka eivät näe kuvaa. "
+        "Kuvaile kuvan todellista sisältöä, älä tulkitse mitään. "
+        "Aloita yleisellä kuvauksella ja siirry sitten yksityiskohtiin. "
+        "Kuvaile yksityiskohtia ainakin viiden lauseen verran. "
+        "Jos kuvassa näkyy tekstiä, kerro mitä siinä lukee ja jos teksti ei ole suomea, käännä se myös suomeksi. "
         'Vastaa vain lopullisella alt-tekstillä, älä lisää "tässä on alt-teksti", selityksiä tai väliotsikoita. '
     )
     caption = get_caption(image, prompt)
@@ -101,14 +101,23 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
         with gr.Column():
             gr.Markdown("### Input")
             image_input = gr.Image(
-                type="pil", label="Image Input (upload or take a photo)", mirror_webcam=False,
+                type="pil",
+                label="Image Input (upload or take a photo)",
+                mirror_webcam=False,
+            )
+            language_dropdown = gr.Dropdown(
+                choices=[("English", "en"), ("Finnish", "fi"), ("Swedish", "sv")],
+                value="fi",
+                label="Output Language",
+                info="Select the output language for caption and subject suggestions",
             )
             project_dropdown = gr.Dropdown(
-                choices=[("YSO Finnish - Yleinen suomalainen ontologia", "yso-fi"),
-                         ("YKL Finnish - Yleisten kirjastojen luokitusjärjestelmä ", "ykl-fi"),
-                         ("KAUNO Finnish - Fiktiivisen aineiston ontologia ", "kauno-fi")
-                         ],
-                value="yso-fi",
+                choices=[
+                    ("YSO - General Finnish Ontology", "yso"),
+                    ("YKL - Finnish Public Library Classification ", "ykl"),
+                    ("KAUNO - Ontology for Fiction", "kauno"),
+                ],
+                value="yso",
                 label="Annif Project",
                 info="Select the vocabulary from where subject suggestions are drawn",
             )
@@ -119,13 +128,45 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
             caption_output = gr.Textbox(label="Caption", lines=10, interactive=False)
             subjects_output = gr.Label(label="Subject Suggestions", show_heading=False)
 
-    def run_app(image, project_id):
-        caption, subjects = process_image(image, project_id)[1:]
+    # Translated prompts for VLM
+    VLM_PROMPTS = {
+        "fi": (
+            "Luo vaihtoehtoinen tekstikuvaus, joka on tarkoitettu henkilöille, jotka eivät näe kuvaa. "
+            "Kuvaile kuvan todellista sisältöä, älä tulkitse mitään. "
+            "Aloita yleisellä kuvauksella ja siirry sitten yksityiskohtiin. "
+            "Kuvaile yksityiskohtia ainakin viiden lauseen verran. "
+            "Jos kuvassa näkyy tekstiä, kerro mitä siinä lukee ja jos teksti ei ole suomea, käännä se myös suomeksi. "
+            'Vastaa vain lopullisella alt-tekstillä, älä lisää "tässä on alt-teksti", selityksiä tai väliotsikoita. '
+        ),
+        "en": (
+            "Create an alternative text description for people who cannot see the image. "
+            "Describe the actual content of the image, do not interpret anything. "
+            "Start with a general description and then move to details. "
+            "Describe details in at least five sentences. "
+            "If there is text in the image, state what it says and translate it into English if it is not in English. "
+            "Respond only with the final alt text, do not add explanations or headings."
+        ),
+        "sv": (
+            "Skapa en alternativ textbeskrivning för personer som inte kan se bilden. "
+            "Beskriv bildens faktiska innehåll, tolka ingenting. "
+            "Börja med en allmän beskrivning och gå sedan vidare till detaljer. "
+            "Beskriv detaljerna med minst fem meningar. "
+            "Om det finns text i bilden, ange vad det står och översätt det till svenska om det inte är på svenska. "
+            "Svara endast med den slutliga alt-texten, lägg inte till förklaringar eller rubriker."
+        ),
+    }
+
+    def run_app(image, language, project):
+        prompt = VLM_PROMPTS.get(language, VLM_PROMPTS["fi"])
+        # Compose Annif project identifier
+        project_id = f"{project}-{language}"
+        caption = get_caption(image, prompt)
+        subjects = get_subjects(caption, project_id)
         return caption, subjects
 
     submit_btn.click(
         run_app,
-        inputs=[image_input, project_dropdown],
+        inputs=[image_input, language_dropdown, project_dropdown],
         outputs=[caption_output, subjects_output],
     )
     clear_btn.click(lambda: ("", {}), outputs=[caption_output, subjects_output])
@@ -135,4 +176,4 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
 
     image_input.upload(update_submit_btn, inputs=image_input, outputs=submit_btn)
 
-demo.launch()
+    demo.launch()

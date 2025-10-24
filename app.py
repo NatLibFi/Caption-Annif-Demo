@@ -94,7 +94,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
     **How it works:**
     1. Upload or take a photo in the input section below.
     2. The image is sent to a Visual Language Model to generate a caption.
-    3. Annif suggests subjects based on the caption.
+    3. [Annif](https://github.com/NatLibFi/Annif) suggests subjects based on the caption via the API of [Finto AI](https://ai.finto.fi).
     """
     )
     with gr.Row():
@@ -119,7 +119,8 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 ],
                 value="yso",
                 label="Annif Project",
-                info="Select the vocabulary from where subject suggestions are drawn",
+                info="Select the vocabulary from where subject suggestions are drawn "\
+                    "([YSO](https://finto.fi/yso/), [YKL](https://finto.fi/ykl/), [KAUNO](https://finto.fi/kauno/))",
             )
             submit_btn = gr.Button("Submit", interactive=False)
             clear_btn = gr.Button("Clear")

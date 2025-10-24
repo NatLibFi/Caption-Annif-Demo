@@ -106,7 +106,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 mirror_webcam=False,
             )
             language_dropdown = gr.Dropdown(
-                choices=[("English", "en"), ("Finnish", "fi"), ("Swedish", "sv")],
+                choices=[("Finnish", "fi"), ("Swedish", "sv"), ("English", "en")],
                 value="fi",
                 label="Output Language",
                 info="Select the output language for caption and subject suggestions",
@@ -115,7 +115,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 choices=[
                     ("YSO - General Finnish Ontology", "yso"),
                     ("YKL - Finnish Public Library Classification ", "ykl"),
-                    ("KAUNO - Ontology for Fiction", "kauno"),
+                    ("KAUNO - Ontology for Fiction (for Finnish only)", "kauno"),
                 ],
                 value="yso",
                 label="Annif Project",

@@ -161,8 +161,12 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
         # Compose Annif project identifier
         project_id = f"{project}-{language}"
         caption = get_caption(image, prompt)
-        subjects = get_subjects(caption, project_id)
-        return caption, subjects
+        try:
+            subjects = get_subjects(caption, project_id)
+            return caption, subjects
+        except gr.Error:
+            gr.Warning("Sorry, there was a problem getting subject suggestions.")
+            return caption, {}
 
     submit_btn.click(
         run_app,

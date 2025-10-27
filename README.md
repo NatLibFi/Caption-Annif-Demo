@@ -1,5 +1,5 @@
 ---
-title: Annif-with-VLM demo
+title: Caption-Annif demo
 emoji: 📸
 colorFrom: purple
 colorTo: purple

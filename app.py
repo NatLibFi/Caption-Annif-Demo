@@ -34,6 +34,7 @@ def get_caption(image, prompt):
 
     # Prepare payload for VLM (OpenAI schema)
     payload = {
+        "model": "gemma3",
         "messages": [
             {
                 "role": "user",

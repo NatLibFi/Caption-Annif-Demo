@@ -2,6 +2,8 @@ import gradio as gr
 import requests
 from annif_client import AnnifClient
 import os
+import io
+import base64
 
 
 # Get VLM API base URL and API key from environment variables
@@ -24,8 +26,6 @@ else:
 
 def get_caption(image, prompt):
     # Convert image to base64 JPEG
-    import io
-    import base64
 
     buf = io.BytesIO()
     image.save(buf, format="JPEG")
@@ -72,20 +72,6 @@ def get_subjects(caption, project_id):
     except Exception as e:
         print(f"Annif API error: {e}")  # Detailed error for admin
         raise gr.Error("Sorry, there was a problem getting subject suggestions.")
-
-
-def process_image(image, project_id):
-    prompt = (
-        "Luo vaihtoehtoinen tekstikuvaus, joka on tarkoitettu henkilöille, jotka eivät näe kuvaa. "
-        "Kuvaile kuvan todellista sisältöä, älä tulkitse mitään. "
-        "Aloita yleisellä kuvauksella ja siirry sitten yksityiskohtiin. "
-        "Kuvaile yksityiskohtia ainakin viiden lauseen verran. "
-        "Jos kuvassa näkyy tekstiä, kerro mitä siinä lukee ja jos teksti ei ole suomea, käännä se myös suomeksi. "
-        'Vastaa vain lopullisella alt-tekstillä, älä lisää "tässä on alt-teksti", selityksiä tai väliotsikoita. '
-    )
-    caption = get_caption(image, prompt)
-    subjects = get_subjects(caption, project_id)
-    return image, caption, subjects
 
 
 with gr.Blocks(title="VLM Caption & Annif Demo") as demo:

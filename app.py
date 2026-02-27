@@ -90,7 +90,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
             image_input = gr.Image(
                 type="pil",
                 label="Image Input (upload or take a photo)",
-                mirror_webcam=False,
+                webcam_options=gr.WebcamOptions(mirror=False),
             )
             language_dropdown = gr.Dropdown(
                 choices=[("Finnish", "fi"), ("Swedish", "sv"), ("English", "en")],

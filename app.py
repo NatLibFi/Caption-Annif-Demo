@@ -109,11 +109,11 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 info="Select the vocabulary from where subject suggestions are drawn "\
                     "([YSO](https://finto.fi/yso/), [YKL](https://finto.fi/ykl/), [KAUNO](https://finto.fi/kauno/))",
             )
-            prompt_input = gr.Textbox(
-                label="VLM Prompt",
-                lines=6,
-                info="Edit the prompt used to generate the caption. The language of the prompt should match the selected output language.",
-            )
+            with gr.Accordion("VLM Prompt", open=False):
+                prompt_input = gr.Textbox(
+                    lines=6,
+                    info="Edit the prompt used to generate the caption. The language of the prompt should match the selected output language.",
+                )
             submit_btn = gr.Button("Submit", interactive=False)
             clear_btn = gr.Button("Clear")
         with gr.Column():

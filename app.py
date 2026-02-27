@@ -109,6 +109,11 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 info="Select the vocabulary from where subject suggestions are drawn "\
                     "([YSO](https://finto.fi/yso/), [YKL](https://finto.fi/ykl/), [KAUNO](https://finto.fi/kauno/))",
             )
+            prompt_input = gr.Textbox(
+                label="VLM Prompt",
+                lines=6,
+                info="Edit the prompt used to generate the caption. The language of the prompt should match the selected output language.",
+            )
             submit_btn = gr.Button("Submit", interactive=False)
             clear_btn = gr.Button("Clear")
         with gr.Column():
@@ -144,8 +149,9 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
         ),
     }
 
-    def run_app(image, language, project):
-        prompt = VLM_PROMPTS.get(language, VLM_PROMPTS["fi"])
+    def run_app(image, custom_prompt, language, project):
+        # Use custom prompt if provided, otherwise use default prompt for selected language
+        prompt = custom_prompt.strip() if custom_prompt.strip() else VLM_PROMPTS.get(language, VLM_PROMPTS["fi"])
         # Compose Annif project identifier
         project_id = f"{project}-{language}"
         caption = get_caption(image, prompt)
@@ -158,14 +164,27 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
 
     submit_btn.click(
         run_app,
-        inputs=[image_input, language_dropdown, project_dropdown],
+        inputs=[image_input, prompt_input, language_dropdown, project_dropdown],
         outputs=[caption_output, subjects_output],
     )
-    clear_btn.click(lambda: ("", {}), outputs=[caption_output, subjects_output])
+    clear_btn.click(lambda: ("", ""), outputs=[caption_output, prompt_input])
 
     def update_submit_btn(img):
         return gr.update(interactive=img is not None)
 
     image_input.upload(update_submit_btn, inputs=image_input, outputs=submit_btn)
+
+    def update_prompt_from_language(lang):
+        """Update the prompt textarea when language changes"""
+        default_prompt = VLM_PROMPTS.get(lang, VLM_PROMPTS["fi"])
+        return gr.update(value=default_prompt)
+
+    language_dropdown.change(update_prompt_from_language, inputs=language_dropdown, outputs=prompt_input)
+
+    # Set initial prompt value based on default language (fi)
+    def set_initial_values():
+        return update_prompt_from_language("fi")
+
+    demo.load(fn=set_initial_values, outputs=prompt_input)
 
     demo.launch()

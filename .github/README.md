@@ -5,8 +5,9 @@ How this works:
 1. Upload or take a photo.
 2. The image is sent to a Visual Language Model to generate a caption.
 3. Annif suggests subjects based on the caption.
+4. Optionally customize the prompt that instructs the VLM.
 
-Developed using Copilot Agent.
+Developed using Copilot Agent and Roo Code with Qwen3-Coder-Next.
 
 This demo is/was deployed as a Hugging Face Space [NatLibFi/Caption-Annif-Demo](https://huggingface.co/spaces/NatLibFi/Caption-Annif-Demo) for a [workshop at Kirjastoverkkopäivät 2025](https://www.kansalliskirjasto.fi/fi/kirjastoverkkopaivat-2025-torstain-tyopajat#tp2-automaattinen-kuvatekstien-tuottaminen-ja-sisallonkuvailu).
 

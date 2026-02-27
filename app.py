@@ -82,6 +82,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
     1. Upload or take a photo in the input section below.
     2. The image is sent to a Visual Language Model to generate a caption.
     3. [Annif](https://github.com/NatLibFi/Annif) suggests subjects based on the caption via the API of [Finto AI](https://ai.finto.fi).
+    4. The prompt that instructs the VLM can be customized in the "VLM Prompt" section below.
     """
     )
     with gr.Row():

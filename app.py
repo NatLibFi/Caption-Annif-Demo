@@ -112,7 +112,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
             with gr.Accordion("VLM Prompt", open=False):
                 prompt_input = gr.Textbox(
                     label="",
-                    lines=6,
+                    lines=8,
                     info="Edit the prompt used to generate the caption. The language of the prompt should match the selected output language.",
                 )
             submit_btn = gr.Button("Submit", interactive=False)

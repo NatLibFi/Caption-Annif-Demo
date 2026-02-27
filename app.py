@@ -130,6 +130,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
             "Kuvaile yksityiskohtia ainakin viiden lauseen verran. "
             "Jos kuvassa näkyy tekstiä, kerro mitä siinä lukee ja jos teksti ei ole suomea, käännä se myös suomeksi. "
             'Vastaa vain lopullisella alt-tekstillä, älä lisää "tässä on alt-teksti", selityksiä tai väliotsikoita. '
+            "Vastaa suomeksi."
         ),
         "en": (
             "Create an alternative text description for people who cannot see the image. "

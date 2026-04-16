@@ -195,7 +195,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
     def update_submit_btn(img):
         return gr.update(interactive=img is not None)
 
-    image_input.upload(update_submit_btn, inputs=image_input, outputs=submit_btn)
+    image_input.change(update_submit_btn, inputs=image_input, outputs=submit_btn)
 
     def update_prompt_from_language(lang):
         """Update the prompt textarea when language changes"""

@@ -92,6 +92,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 type="pil",
                 label="Image Input (upload or take a photo)",
                 webcam_options=gr.WebcamOptions(mirror=False),
+                height=420,
             )
             # Credit mapping for example images
             CREDIT_MAPPING = {

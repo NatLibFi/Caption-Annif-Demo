@@ -93,6 +93,22 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 label="Image Input (upload or take a photo)",
                 webcam_options=gr.WebcamOptions(mirror=False),
             )
+            # Credit mapping for example images
+            CREDIT_MAPPING = {
+                "examples/166912837857100.jpg": "© [credit1]",
+                "examples/flower-and-bee.jpg": "© [credit2]",
+                "examples/hus-4423.jpg": "© [credit3]",
+            }
+            gr.Examples(
+                examples=[
+                    ["examples/166912837857100.jpg"],
+                    ["examples/flower-and-bee.jpg"],
+                    ["examples/hus-4423.jpg"],
+                ],
+                inputs=image_input,
+                label="Example Images",
+            )
+            credit_display = gr.Markdown(value="", visible=True)
             language_dropdown = gr.Dropdown(
                 choices=[("Finnish", "fi"), ("Swedish", "sv"), ("English", "en")],
                 value="fi",
@@ -107,8 +123,8 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 ],
                 value="yso",
                 label="Annif Project",
-                info="Select the vocabulary from where subject suggestions are drawn "\
-                    "([YSO](https://finto.fi/yso/), [YKL](https://finto.fi/ykl/), [KAUNO](https://finto.fi/kauno/))",
+                info="Select the vocabulary from where subject suggestions are drawn "
+                "([YSO](https://finto.fi/yso/), [YKL](https://finto.fi/ykl/), [KAUNO](https://finto.fi/kauno/))",
             )
             with gr.Accordion("VLM Prompt", open=False):
                 prompt_input = gr.Textbox(
@@ -154,7 +170,11 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
 
     def run_app(image, custom_prompt, language, project):
         # Use custom prompt if provided, otherwise use default prompt for selected language
-        prompt = custom_prompt.strip() if custom_prompt.strip() else VLM_PROMPTS.get(language, VLM_PROMPTS["fi"])
+        prompt = (
+            custom_prompt.strip()
+            if custom_prompt.strip()
+            else VLM_PROMPTS.get(language, VLM_PROMPTS["fi"])
+        )
         # Compose Annif project identifier
         project_id = f"{project}-{language}"
         caption = get_caption(image, prompt)
@@ -182,12 +202,34 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
         default_prompt = VLM_PROMPTS.get(lang, VLM_PROMPTS["fi"])
         return gr.update(value=default_prompt)
 
-    language_dropdown.change(update_prompt_from_language, inputs=language_dropdown, outputs=prompt_input)
+    language_dropdown.change(
+        update_prompt_from_language, inputs=language_dropdown, outputs=prompt_input
+    )
 
     # Set initial prompt value based on default language (fi)
     def set_initial_values():
         return update_prompt_from_language("fi")
 
     demo.load(fn=set_initial_values, outputs=prompt_input)
+
+    # Update credit display when image is uploaded or example is selected
+    def update_credit_from_image(img):
+        if img is None:
+            return ""
+        # Get the file path from the image input
+        # Gradio passes a dict with 'path' key for images from examples
+        if isinstance(img, dict) and "path" in img:
+            path = img["path"]
+            # Extract just the filename
+            import os
+
+            filename = os.path.basename(path)
+            credit = CREDIT_MAPPING.get(f"examples/{filename}", "")
+            return f"*{credit}*" if credit else ""
+        return ""
+
+    image_input.change(
+        update_credit_from_image, inputs=image_input, outputs=credit_display
+    )
 
     demo.launch()

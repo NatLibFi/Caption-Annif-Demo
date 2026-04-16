@@ -105,8 +105,9 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                 "examples/hus-4423.jpg": "Aarne Pietinen, image provided by HUS Helsinki University Hospital",
                 "examples/flower-and-bee.jpg": "Juho Inkinen",
             }
-            gr.Examples(
-                examples=list(images.keys()),
+            example_keys = list(images.keys())
+            examples_component = gr.Examples(
+                examples=example_keys,
                 inputs=image_input,
                 label="Example Images",
             )
@@ -133,7 +134,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
                     lines=8,
                     info="Edit the prompt used to generate the caption. The language of the prompt should match the selected output language.",
                 )
-            submit_btn = gr.Button("Submit", interactive=False)
+            submit_btn = gr.Button("Submit")
             clear_btn = gr.Button("Clear")
         with gr.Column():
             gr.Markdown("### Output")
@@ -170,6 +171,8 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
     }
 
     def run_app(image, custom_prompt, language, project):
+        if image is None:
+            raise gr.Error("Please upload or select an image first.")
         # Use custom prompt if provided, otherwise use default prompt for selected language
         prompt = (
             custom_prompt.strip()
@@ -191,12 +194,7 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
         inputs=[image_input, prompt_input, language_dropdown, project_dropdown],
         outputs=[caption_output, subjects_output],
     )
-    clear_btn.click(lambda: ("", ""), outputs=[caption_output, prompt_input])
-
-    def update_submit_btn(img):
-        return gr.update(interactive=img is not None)
-
-    image_input.change(update_submit_btn, inputs=image_input, outputs=submit_btn)
+    clear_btn.click(lambda: ("", {}), outputs=[caption_output, subjects_output])
 
     def update_prompt_from_language(lang):
         """Update the prompt textarea when language changes"""
@@ -219,16 +217,31 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
         if isinstance(img, str):
             filename = os.path.basename(img)
             credit = images.get(f"examples/{filename}", "")
-            return (
-                f"*{credit}*"
-                if credit
-                else ""
-            )
+            return f"*{credit}*" if credit else ""
         # Pass PIL Image objects (from webcam or other sources)
         return ""
 
-    image_input.change(
+    # .upload() fires after a user file is fully uploaded — no pending-upload warning.
+    # .clear() resets the credit when the image is removed.
+    image_input.upload(
         update_credit_from_image, inputs=image_input, outputs=credit_display
+    )
+    image_input.clear(lambda: "", outputs=credit_display)
+
+    # Handle example image selection via the Examples dataset click event.
+    # This avoids using image_input.change(), which fires mid-upload and causes
+    # the "Waiting for file(s) to finish uploading" warning.
+    credits_list = [f"*{images[k]}*" if images[k] else "" for k in example_keys]
+
+    def update_credit_from_example(index):
+        if index is None:
+            return ""
+        return credits_list[index[0]]
+
+    examples_component.dataset.click(
+        update_credit_from_example,
+        inputs=examples_component.dataset,
+        outputs=credit_display,
     )
 
     demo.launch()

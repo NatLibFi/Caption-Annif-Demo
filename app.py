@@ -4,6 +4,7 @@ from annif_client import AnnifClient
 import os
 import io
 import base64
+from PIL import Image
 
 
 # Get VLM API base URL and API key from environment variables
@@ -26,6 +27,9 @@ else:
 
 def get_caption(image, prompt):
     # Convert image to base64 JPEG
+    # If image is a filepath (str), open it as a PIL Image
+    if isinstance(image, str):
+        image = Image.open(image)
 
     buf = io.BytesIO()
     image.save(buf, format="JPEG")
@@ -88,28 +92,24 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
     with gr.Row():
         with gr.Column():
             gr.Markdown("### Input")
+            credit_display = gr.Markdown(value="", visible=True)
             image_input = gr.Image(
-                type="pil",
+                type="filepath",
                 label="Image Input (upload or take a photo)",
                 webcam_options=gr.WebcamOptions(mirror=False),
                 height=420,
             )
             # Credit mapping for example images
-            CREDIT_MAPPING = {
-                "examples/166912837857100.jpg": "© [credit1]",
-                "examples/flower-and-bee.jpg": "© [credit2]",
-                "examples/hus-4423.jpg": "© [credit3]",
+            images = {
+                "examples/snowman-poster.jpg": "Osmo K. Oksanen, image provided by The Finnish Railway Museum",
+                "examples/hus-4423.jpg": "Aarne Pietinen, image provided by HUS Helsinki University Hospital",
+                "examples/flower-and-bee.jpg": "Juho Inkinen",
             }
             gr.Examples(
-                examples=[
-                    ["examples/166912837857100.jpg"],
-                    ["examples/flower-and-bee.jpg"],
-                    ["examples/hus-4423.jpg"],
-                ],
+                examples=list(images.keys()),
                 inputs=image_input,
                 label="Example Images",
             )
-            credit_display = gr.Markdown(value="", visible=True)
             language_dropdown = gr.Dropdown(
                 choices=[("Finnish", "fi"), ("Swedish", "sv"), ("English", "en")],
                 value="fi",
@@ -213,20 +213,18 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
 
     demo.load(fn=set_initial_values, outputs=prompt_input)
 
-    # Update credit display when image is uploaded or example is selected
+    # Update credit display when example is selected
     def update_credit_from_image(img):
-        if img is None:
-            return ""
-        # Get the file path from the image input
-        # Gradio passes a dict with 'path' key for images from examples
-        if isinstance(img, dict) and "path" in img:
-            path = img["path"]
-            # Extract just the filename
-            import os
-
-            filename = os.path.basename(path)
-            credit = CREDIT_MAPPING.get(f"examples/{filename}", "")
-            return f"*{credit}*" if credit else ""
+        # Gradio with type="filepath" passes a string path
+        if isinstance(img, str):
+            filename = os.path.basename(img)
+            credit = images.get(f"examples/{filename}", "")
+            return (
+                f"*{credit}*"
+                if credit
+                else ""
+            )
+        # Pass PIL Image objects (from webcam or other sources)
         return ""
 
     image_input.change(

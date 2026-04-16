@@ -92,18 +92,21 @@ with gr.Blocks(title="VLM Caption & Annif Demo") as demo:
     with gr.Row():
         with gr.Column():
             gr.Markdown("### Input")
-            credit_display = gr.Markdown(value="", visible=True)
             image_input = gr.Image(
                 type="filepath",
                 label="Image Input (upload or take a photo)",
                 webcam_options=gr.WebcamOptions(mirror=False),
                 height=420,
             )
+            credit_display = gr.Markdown(value="", visible=True)
+
             # Credit mapping for example images
             images = {
-                "examples/snowman-poster.jpg": "Osmo K. Oksanen, image provided by The Finnish Railway Museum",
-                "examples/hus-4423.jpg": "Aarne Pietinen, image provided by HUS Helsinki University Hospital",
-                "examples/flower-and-bee.jpg": "Juho Inkinen",
+                "examples/snowman-poster.jpg": "Image: Osmo K. Oksanen, provided by the Finnish Railway Museum, https://finna.fi/Record/srm.166912837857100",
+                "examples/hus-4423.jpg": "Image: Aarne Pietinen, provided by HUS Helsinki University Hospital, https://finna.fi/Record/husmuseo.hus-4423",
+                "examples/pjotr-kropotkin.jpg": "Image: Mia Green, provided by the Museum of Torne Valley, https://finna.fi/Record/tornionlaakso.4294dd9d-998f-4c2a-9b20-63b945bccdcc",
+                "examples/spider-web.jpg": "Image: Merja Wesander, provided by the Helsinki City Museum, https://finna.fi/Record/hkm.8b0047a2-8c39-4376-bc95-7a9988cb36e0",
+                "examples/flower-and-bee.jpg": "Image: Juho Inkinen",
             }
             example_keys = list(images.keys())
             examples_component = gr.Examples(
